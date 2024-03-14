@@ -2,6 +2,6 @@ dobj <br>
 custom 3d object format for processing
 -
 ### How to get renderer?
-this program is in alpha state 👍
+Download the dobj.pde file and add it to your sketch's folder.
 ### How to use editor?
-this program is in alpha state 👍
+Go to releases and download any release. (but preferably the latest, but do whatever you want ig)
