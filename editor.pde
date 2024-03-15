@@ -3,11 +3,11 @@ int[][] sampleTris = {{0, 1, 2}, {0, 2, 3}, {3, 2, 6}, {3, 6, 7}, {1, 2, 6}, {1,
 color[] sampleColors = {color(255, 0, 0), color(255, 255, 0), color(255, 255, 0), color(0, 0, 255), color(0), color(0, 0, 255), color(0, 255, 255), color(255, 0, 255), color(0, 0, 255), color(0, 255, 0), color(255), color(0, 0, 255)};
 
 DOBJECT sampleDOBJECT;
-
 Arcball arcball;
+PFont MSGothic20;
 
 float editorSize;
-int initialMouseX, initialMouseY;
+int initialMouseX, initialMouseY, scrollY;
 
 void settings() {
   fullScreen(P3D);
@@ -21,8 +21,10 @@ void setup() {
   editorSize = width/2.5;
   
   sampleDOBJECT = new DOBJECT(samplePoints, sampleTris, sampleColors, 200, 200, 200);
-
   arcball = new Arcball(this, 600);
+  MSGothic20 = loadFont("MS-Gothic-20.vlw");
+  textFont(MSGothic20);
+  
 }
 
 void draw() {
@@ -33,6 +35,7 @@ void draw() {
   fill(255);
   rect(0, 0, editorSize, height);
   fill(0);
+  text(input, 20, 20, editorSize-40, height+scrollY);
   
   // renderer
   
@@ -43,9 +46,8 @@ void draw() {
   pushMatrix();
   arcball.run();
   translate(sampleDOBJECT.size[0]*-0.5, sampleDOBJECT.size[1]*-0.5, sampleDOBJECT.size[2]*-0.5);
-  renderDOBJECT( sampleDOBJECT );
+  renderDOBJECT(sampleDOBJECT);
   popMatrix();
-  
 }
 
 void mousePressed() {
@@ -59,17 +61,28 @@ void mousePressed() {
 void mouseDragged() {
   if (initialMouseX>editorSize+20) 
     arcball.mouseDragged();
-  if (initialMouseX<editorSize+20) cursor(MOVE);
-  if (initialMouseX>editorSize-20) cursor(MOVE);
-  if (initialMouseX<editorSize-20) cursor(TEXT);
+  if (initialMouseX>editorSize-20)
+    cursor(MOVE);
+  if (initialMouseX>editorSize-20 && initialMouseX<editorSize+20) {
+    
+  }
+  if (initialMouseX<editorSize-20)
+    cursor(TEXT);
 }
 
 void mouseMoved() {
-  if (mouseX<editorSize-20) cursor(TEXT);
-  else if (mouseX>editorSize-20 && mouseX<editorSize+20) cursor(CROSS);
-  if (mouseX>editorSize+20 && !mousePressed) cursor(HAND);
+  if (mouseX<editorSize-20)
+    cursor(TEXT);
+  else if (mouseX>editorSize-20 && mouseX<editorSize+20)
+    cursor(CROSS);
+  if (mouseX>editorSize+20 && !mousePressed)
+    cursor(HAND);
 }
 
 void mouseReleased() {
   cursor(ARROW);
+}
+
+void keyPressed() {
+  keyboardInput();
 }
