@@ -1,10 +1,13 @@
 float[][] samplePoints = {{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1},{0, 1, 0}, {1, 1, 0}, {1, 1, 1}, {0, 1, 1}};
 int[][] sampleTris = {{0, 1, 2}, {0, 2, 3}, {3, 2, 6}, {3, 6, 7}, {1, 2, 6}, {1, 6, 5}, {0, 1, 5}, {0, 5, 4}, {0, 3, 7}, {0, 7, 4}, {4, 5, 6}, {4, 6, 7}};
-color[] sampleColors = {color(255, 0, 0), color(255, 255, 0), color(0, 0, 255), color(0, 0, 255), color(0), color(0, 0, 255), color(0, 255, 255), color(255, 0, 255), color(0, 0, 255), color(0, 255, 0), color(255), color(0, 0, 255)};
+color[] sampleColors = {color(255, 0, 0), color(255, 255, 0), color(255, 255, 0), color(0, 0, 255), color(0), color(0, 0, 255), color(0, 255, 255), color(255, 0, 255), color(0, 0, 255), color(0, 255, 0), color(255), color(0, 0, 255)};
 
 DOBJECT sampleDOBJECT;
 
 Arcball arcball;
+
+float editorSize;
+int initialMouseX, initialMouseY;
 
 void settings() {
   fullScreen(P3D);
@@ -15,36 +18,59 @@ void setup() {
   textSize(20);
   fill(0);
   noStroke();
+  editorSize = width/2.5;
   
   sampleDOBJECT = new DOBJECT(samplePoints, sampleTris, sampleColors, 200, 200, 200);
 
-  arcball = new Arcball(this, 500);
+  arcball = new Arcball(this, 600);
 }
 
 void draw() {
   background(30);
+  
+  // editor
+  hint(DISABLE_DEPTH_TEST);
+  fill(255);
+  rect(0, 0, editorSize, height);
+  fill(0);
+  
+  // renderer
+  
   lights();
   
-  arcball.run();
+  hint(ENABLE_DEPTH_TEST);
   
   pushMatrix();
+  arcball.run();
   translate(sampleDOBJECT.size[0]*-0.5, sampleDOBJECT.size[1]*-0.5, sampleDOBJECT.size[2]*-0.5);
   renderDOBJECT( sampleDOBJECT );
   popMatrix();
+  
 }
 
 void mousePressed() {
-  arcball.mousePressed();
+  if (mouseX>editorSize+20)
+    arcball.mousePressed();
+  initialMouseX = mouseX;
+  initialMouseY = mouseY;
 }
 
 void mouseDragged() {
-  arcball.mouseDragged();
+  if (initialMouseX>editorSize+20) 
+    arcball.mouseDragged();
+  if (initialMouseX<editorSize+20) cursor(MOVE);
+  if (initialMouseX>editorSize-20) cursor(MOVE);
 }
 
+void mouseMoved() {
+  if (mouseX<editorSize-20) cursor(TEXT);
+  else if (mouseX>editorSize-20 && mouseX<editorSize+20) cursor(CROSS);
+  if (mouseX>editorSize+20 && !mousePressed) cursor(HAND);
+}
 
-
-
-
+void mouseReleased() {
+  
+}
 
 /**
   *
@@ -93,7 +119,7 @@ class Arcball {
   }
 
   void run(){
-    center_x = parent.width/2.0;
+    center_x = (parent.width+editorSize)/2.0;
     center_y = parent.height/2.0;
     
     q_now = Quat.mul(q_drag, q_down);
