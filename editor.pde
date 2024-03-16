@@ -6,8 +6,8 @@ DOBJECT sampleDOBJECT;
 Arcball arcball;
 PFont MSGothic20;
 
-float editorSize;
-int initialMouseX, initialMouseY, scrollY;
+int editorSize;
+int initialMouseX, initialMouseY, scrollY, initialEditorSize;
 
 void settings() {
   fullScreen(P3D);
@@ -18,17 +18,28 @@ void setup() {
   textSize(20);
   fill(0);
   noStroke();
-  editorSize = width/2.5;
+  editorSize = int(width/2.5);
   
-  sampleDOBJECT = new DOBJECT(samplePoints, sampleTris, sampleColors, 200, 200, 200);
+  sampleDOBJECT = new DOBJECT(samplePoints, sampleTris, sampleColors, 200, 200, 200, "cube");
+  input = sampleDOBJECT.encode();
   arcball = new Arcball(this, 600);
   MSGothic20 = loadFont("MS-Gothic-20.vlw");
   textFont(MSGothic20);
-  
 }
 
 void draw() {
   background(30);
+  
+  // renderer
+  lights();
+  hint(ENABLE_DEPTH_TEST);
+  pushMatrix();
+  arcball.run();
+  translate(sampleDOBJECT.size[0]*-0.5, sampleDOBJECT.size[1]*-0.5, sampleDOBJECT.size[2]*-0.5);
+  renderDOBJECT(sampleDOBJECT);
+  popMatrix();
+
+  noLights();
   
   // editor
   hint(DISABLE_DEPTH_TEST);
@@ -36,18 +47,6 @@ void draw() {
   rect(0, 0, editorSize, height);
   fill(0);
   text(input, 20, 20, editorSize-40, height+scrollY);
-  
-  // renderer
-  
-  lights();
-  
-  hint(ENABLE_DEPTH_TEST);
-  
-  pushMatrix();
-  arcball.run();
-  translate(sampleDOBJECT.size[0]*-0.5, sampleDOBJECT.size[1]*-0.5, sampleDOBJECT.size[2]*-0.5);
-  renderDOBJECT(sampleDOBJECT);
-  popMatrix();
 }
 
 void mousePressed() {
@@ -55,6 +54,9 @@ void mousePressed() {
     arcball.mousePressed();
   initialMouseX = mouseX;
   initialMouseY = mouseY;
+  if (initialMouseX>editorSize-20 && initialMouseX<editorSize+20) {
+    initialEditorSize = editorSize;
+  }
   mouseDragged();
 }
 
@@ -63,8 +65,8 @@ void mouseDragged() {
     arcball.mouseDragged();
   if (initialMouseX>editorSize-20)
     cursor(MOVE);
-  if (initialMouseX>editorSize-20 && initialMouseX<editorSize+20) {
-    
+  if (initialMouseX>initialEditorSize-20 && initialMouseX<initialEditorSize+20) {
+    editorSize = initialEditorSize-initialMouseX+mouseX;
   }
   if (initialMouseX<editorSize-20)
     cursor(TEXT);
